@@ -63,7 +63,7 @@
       </div>
       <div class="form__item">
         <span class="form__item__name">
-          病人姓名
+          手术医生:
         </span>
         <input type="text" class="form__item__value" />
       </div>

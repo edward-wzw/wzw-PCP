@@ -51,6 +51,11 @@ export default new Router({
                     meta: { title: '视频预约' }
                 },
                 {
+                    path: '/detail',
+                    component: resolve => require(['../components/page/detail.vue'], resolve),
+                    meta: { title: '病例详情' }
+                },
+                {
                     path: '/404',
                     component: resolve => require(['../components/page/404.vue'], resolve),
                     meta: { title: '404' }

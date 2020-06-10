@@ -16,6 +16,8 @@ Vue.use(ElementUI, {
 });
 Vue.prototype.$axios = axios;
 // Mock.bootstrap();
+import Print from 'vue-print-nb'
+Vue.use(Print);
 //使用钩子函数对路由进行权限跳转
 router.beforeEach((to, from, next) => {
     const role = localStorage.getItem('ms_username');
