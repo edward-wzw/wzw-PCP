@@ -1,20 +1,20 @@
 <template>
   <div>
     <vuedraggable class="left" v-model="list1" group="people">
-        <transition-group>
-          <div v-for="item in list1" :key="item" class="item">
-            <p>{{item}}</p>
-          </div>
-        </transition-group>
-      </vuedraggable>
+      <transition-group>
+        <div v-for="item in list1" :key="item" class="item">
+          <p>{{item}}</p>
+        </div>
+      </transition-group>
+    </vuedraggable>
 
-      <vuedraggable class="right" v-model="list2" group="people">
-        <transition-group>
-          <div v-for="item in list2" :key="item" class="item">
-            <p>{{item}}</p>
-          </div>
-        </transition-group>
-      </vuedraggable>
+    <vuedraggable class="right" v-model="list2" group="people">
+      <transition-group>
+        <div v-for="item in list2" :key="item" class="item">
+          <p>{{item}}</p>
+        </div>
+      </transition-group>
+    </vuedraggable>
   </div>
 </template>
 

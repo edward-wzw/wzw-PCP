@@ -95,6 +95,11 @@ export default {
           icon: "el-icon-lx-record",
           index: "broadcast",
           title: "视频预约",
+        },
+        {
+          icon: "el-icon-lx-settings",
+          index: "reportMould",
+          title: "模板管理",
         }
         // {
         //   icon: "el-icon-lx-emoji",

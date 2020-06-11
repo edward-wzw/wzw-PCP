@@ -51,6 +51,11 @@ export default new Router({
                     meta: { title: '视频预约' }
                 },
                 {
+                    path: '/reportMould',
+                    component: resolve => require(['../components/page/reportMould.vue'], resolve),
+                    meta: { title: '模板管理' }
+                },
+                {
                     path: '/detail',
                     component: resolve => require(['../components/page/detail.vue'], resolve),
                     meta: { title: '病例详情' }
