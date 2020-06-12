@@ -10,6 +10,14 @@
       <div class="report__mould__left" :class="customizeMould ? 'backgroundChange' : ''">
         <!-- 自定义模板 -->
         <el-alert title="温馨提示： 点击上方“自定义模板”按钮后，您可通过鼠标拖拽的方式，对左右两侧的内容进行更改。" type="warning" style="margin:14px 0px"></el-alert>
+        <!-- 左边 headerInfo -->
+        <vuedraggable v-model="headerInfoLeftArr" group="dragHeaderInfo" :options="dragOptions" v-show="customizeMould">
+          <transition-group tag="div">
+            <div class="edit__hospital__wrap" v-for="item in headerInfoLeftArr" :key="item.value">
+              <span class="weight">{{ item.name }}</span><input type="text" v-model="hospital" class="edit__hospital">
+            </div>
+          </transition-group>
+        </vuedraggable>
         <!--左边 第一栏 基本信息-->
         <vuedraggable v-model="userInfoLeftArr" group="dragUserInfo" :options="dragOptions"  @change="dragChangeUserInfo" v-show="customizeMould">
           <transition-group tag="div" class="case__userinfo">
@@ -48,9 +56,14 @@
         <div class="report__paper" v-show="customizeMould">
           <input type="text" style="font-size:26px;" v-model="mainTitle" class="center weight">
           <input type="text" style="font-size:20px;" v-model="subTitle" class="center weight">
-          <div class="edit__hospital__wrap">
-            <span class="weight">送检医院：</span><input type="text" v-model="hospital" class="edit__hospital">
-          </div>
+          <!-- 右边 headerInfo -->
+          <vuedraggable v-model="headerInfoRightArr" group="dragHeaderInfo" :options="dragOptions">
+            <transition-group tag="div">
+              <div class="edit__hospital__wrap" v-for="item in headerInfoRightArr" :key="item.value">
+                <span class="weight">{{ item.name }}</span><input type="text" v-model="hospital" class="edit__hospital">
+              </div>
+            </transition-group>
+          </vuedraggable>
           <div class="line"></div>
           <!--右边 第一栏 基本信息-->
           <vuedraggable v-model="userInfoRightArr" group="dragUserInfo" :options="dragOptions"  @change="dragChangeUserInfo" >
@@ -77,8 +90,8 @@
         <div id="printTest"  class="report__paper" v-if="myMould && myAllMouldArr.length !== 0">
           <input type="text" style="font-size:26px;" v-model="mainTitle" class="center weight bordernon" disabled>
           <input type="text" style="font-size:20px;" v-model="subTitle" class="center weight bordernon" disabled>
-          <div class="edit__hospital__wrap">
-            <span class="weight">送检医院：</span><input type="text" v-model="hospital" class="edit__hospital bordernon" disabled>
+          <div class="edit__hospital__wrap" v-for="item in myAllMouldArr[mouldChoosedIndex]['headerInfo']" :key="item.value">
+            <span class="weight">{{ item.name }}</span><input type="text" v-model="hospital" class="edit__hospital bordernon" disabled>
           </div>
           <div class="line"></div>
           <div class="case__userinfo">
@@ -130,6 +143,10 @@ export default {
       list2: [2,4,6,8,10],
       customizeMould: true, // 自定义模板的显示与否
       myMould: false, // 我的模板的显示与否
+      headerInfoLeftArr: [],
+      headerInfoRightArr: [
+        { name: '送检医院：', value: 'name' },
+      ],
       userInfoLeftArr: [],
       userInfoRightArr: [
         { name: '姓名：', value: 'name' },
@@ -201,6 +218,7 @@ export default {
       this.myMouldNum++
       localStorage.setItem('myMouldNum', this.myMouldNum)
       this.myEachMouldArr = {}
+      this.myEachMouldArr.headerInfo = this.headerInfoRightArr
       this.myEachMouldArr.userInfo = this.userInfoRightArr
       this.myEachMouldArr.resultItem = this.resultItemRightArr
       this.myAllMouldArr.push(this.myEachMouldArr)
