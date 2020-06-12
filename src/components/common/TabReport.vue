@@ -1,10 +1,10 @@
 <template>
   <div style="position:relative">
     <div id="printTest"  class="report__paper">
-      <input type="text" style="font-size:26px;" v-model="mainTitle" class="center weight bordernon" disabled>
-      <input type="text" style="font-size:20px;" v-model="subTitle" class="center weight bordernon" disabled>
-      <div class="edit__hospital__wrap">
-        <span class="weight">送检医院：</span><input type="text" v-model="hospital" class="edit__hospital bordernon" disabled>
+      <input type="text" style="font-size:26px;" v-model="myMould.mainTitle" class="center weight bordernon" disabled>
+      <input type="text" style="font-size:20px;" v-model="myMould.subTitle" class="center weight bordernon" disabled>
+      <div class="edit__hospital__wrap" v-for="item in myMould['headerInfo']" :key="item.value">
+        <span class="weight">{{ item.name }}</span><input type="text" v-model="hospital" class="edit__hospital bordernon" disabled>
       </div>
       <div class="line"></div>
       <div class="case__userinfo">

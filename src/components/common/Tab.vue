@@ -1,7 +1,7 @@
 <template>
     <div>
       <div class="my__tabs">
-          <div class="my__tab__items" v-for="(item, index) in tabItems" :key="index" @click="transTab(index)">{{item}}</div>
+          <div class="my__tab__items" :class="activeTabIndex === index ? 'activeTab' : ''" v-for="(item, index) in tabItems" :key="index" @click="transTab(index)">{{item}}</div>
       </div>
       <div class="my__tab__content">
         <slot name="tabContent"></slot>
@@ -12,8 +12,14 @@
 <script>
 export default {
     props: ['tabItems'],
+    data () {
+      return {
+        activeTabIndex: 0
+      }
+    },
     methods: {
       transTab (index) {
+        this.activeTabIndex = index
         this.$emit('tabInfo', index)
       }
     }
@@ -48,5 +54,9 @@ export default {
   box-sizing: border-box;
   border: 2px solid #888;
   margin-top: 16px;
+}
+.activeTab {
+  background-color: #0097a5;
+  color: #fff;
 }
 </style>

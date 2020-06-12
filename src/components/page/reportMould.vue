@@ -88,8 +88,8 @@
         </div>
         <!-- 我的模板预览 -->
         <div id="printTest"  class="report__paper" v-if="myMould && myAllMouldArr.length !== 0">
-          <input type="text" style="font-size:26px;" v-model="mainTitle" class="center weight bordernon" disabled>
-          <input type="text" style="font-size:20px;" v-model="subTitle" class="center weight bordernon" disabled>
+          <input type="text" style="font-size:26px;" v-model="myAllMouldArr[mouldChoosedIndex]['mainTitle']" class="center weight bordernon" disabled>
+          <input type="text" style="font-size:20px;" v-model="myAllMouldArr[mouldChoosedIndex]['subTitle']" class="center weight bordernon" disabled>
           <div class="edit__hospital__wrap" v-for="item in myAllMouldArr[mouldChoosedIndex]['headerInfo']" :key="item.value">
             <span class="weight">{{ item.name }}</span><input type="text" v-model="hospital" class="edit__hospital bordernon" disabled>
           </div>
@@ -218,6 +218,8 @@ export default {
       this.myMouldNum++
       localStorage.setItem('myMouldNum', this.myMouldNum)
       this.myEachMouldArr = {}
+      this.myEachMouldArr.mainTitle = this.mainTitle
+      this.myEachMouldArr.subTitle = this.subTitle
       this.myEachMouldArr.headerInfo = this.headerInfoRightArr
       this.myEachMouldArr.userInfo = this.userInfoRightArr
       this.myEachMouldArr.resultItem = this.resultItemRightArr
