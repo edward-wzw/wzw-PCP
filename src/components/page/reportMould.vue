@@ -31,10 +31,11 @@
         <div v-show="myMould">
           <el-button type="primary" class="use__mould__btn" @click="useMouldBtn">使用模板</el-button>
           <div class="myMould__section">
-            <div v-for="(item, index) of myMouldNum" :key="index" class="myMould__item">
-              <i class="el-icon-tickets"></i>
-              我的第{{ index + 1 }}个模板
-              <i class="el-icon-delete" @click="deleteMouldItem(index)"></i>
+            <div v-for="(item, index) of myMouldNum" :key="index" class="myMould__item" @click="chooseMould(index)">
+              <i class="el-icon-document myMould__icon"></i>
+              <p class="myMould__info">我的第{{ index + 1 }}个模板</p>
+              <div class="myMould__item__cover"></div>
+              <!-- <i class="el-icon-delete" @click="deleteMouldItem(index)"></i> -->
             </div>
           </div>
         </div>
@@ -83,6 +84,7 @@ import vuedraggable from 'vuedraggable'
 export default {
   data () {
     return {
+      mouldChoosedIndex: '', // 选择了第几个模板
       myMouldNum: 0,
       myAllMouldArr: [],
       myEachMouldArr: [],
@@ -175,6 +177,7 @@ export default {
     saveMouldBtn () {
       this.myMouldNum++
       localStorage.setItem('myMouldNum', this.myMouldNum)
+      this.myEachMouldArr = []
       this.myEachMouldArr.push(this.userInfoRightArr)
       this.myEachMouldArr.push(this.resultItemRightArr)
       this.myAllMouldArr.push(this.myEachMouldArr)
@@ -192,6 +195,9 @@ export default {
     },
     useMouldBtn () {
       console.log('使用模板')
+    },
+    chooseMould (index) {
+      console.log(index)
     }
   }
 }
@@ -360,10 +366,56 @@ textarea {
 .drag__box {
   min-height: 70vh;
 }
-
 .biggerPaper {
   width: 100%;
   margin: 0;
   transition: all 0.5s;
+}
+.myMould__section {
+  box-sizing: border-box;
+  width: 100%;
+  overflow: auto;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  position: relative;
+  left: -10px;
+  padding: 10px ;
+}
+.myMould__item {
+  width: 40%;
+  height: 120px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.myMould__info {
+  margin-top: 14px;
+}
+.myMould__item__cover {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: #333;
+  border-radius: 5px;
+  opacity: 0;
+  left: 0;
+  top: 0;
+  cursor: pointer;
+}
+.myMould__item:hover {
+  transform: scale(1.1);
+  transition: all 1s;
+}
+.myMould__item > .myMould__item__cover:hover  {
+  opacity: .1;
+  transition: all .1s;
+  
+}
+.myMould__icon {
+  font-size: 50px;
+  color: #0097a5;
 }
 </style>
