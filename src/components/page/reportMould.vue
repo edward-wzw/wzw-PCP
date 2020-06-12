@@ -1,20 +1,20 @@
 <template>
   <div style="position:relative;padding-top:80px;height:74vh">
     <el-card class="paper__topbar">
-      <el-button class="paper__bigger__btn" type="primary" @click="customizeModuleBtn" plain>自定义模板</el-button>
-      <el-button class="paper__bigger__btn" type="success" @click="myModuleBtn" plain>我的模板</el-button>
+      <el-button class="paper__bigger__btn" type="primary" @click="customizeMouldBtn" plain>自定义模板</el-button>
+      <el-button class="paper__bigger__btn" type="success" @click="myMouldBtn" plain>我的模板</el-button>
       <el-button v-print="'#printTest'" @click="printReportBtn" plain>打印报告</el-button>
     </el-card >
     <div class="report__mould__wrap">
       <!-- 左侧自定义区域 -->
       <div class="report__mould__left">
         <!-- 自定义模板 -->
-        <el-alert title="温馨提示： 点击“自定义模板”后，您可通过鼠标拖拽的方式，对左右两侧的内容进行更改。" type="warning" style="margin:14px 10px;width:94%"></el-alert>
-        <vuedraggable :options="dragOptions" group="dragUserInfo" v-show="customizeModule">
+        <el-alert title="温馨提示： 点击“自定义模板”后，您可通过鼠标拖拽的方式，对左右两侧的内容进行更改。" type="warning" style="margin:14px 0px"></el-alert>
+        <vuedraggable :options="dragOptions" group="dragUserInfo" v-show="customizeMould">
           <transition-group tag="div">
           </transition-group>
         </vuedraggable>
-        <vuedraggable :options="dragOptions" group="dragListOne" v-show="customizeModule">
+        <vuedraggable :options="dragOptions" group="dragListOne" v-show="customizeMould">
           <transition-group tag="div" class="drag__box">    
             <!-- 大体所见 第二栏 -->
             <div class="item__wrap" key="aa">
@@ -29,14 +29,19 @@
           </transition-group>
         </vuedraggable>
         <!-- 我的模板 -->
-        <div v-show="myModule">
-          我的模板
+        <div v-show="myMould">
+          <div v-for="(item, index) of myMouldNum" :key="index">
+            <i class="el-icon-tickets"></i>
+            我的第{{ index + 1 }}个模板
+            <i class="el-icon-delete" @click="deleteMouldItem(index)"></i>
+          </div>
         </div>
       </div>
       <!-- 右侧预览区域 -->
+      <!-- 自定义预览 -->
       <div class="report__mould__right" :class="paperBigger ? 'biggerPaper' : ''">
         <div class="report__preview__title">模板预览区</div>
-        <div id="printTest" class="report__paper">
+        <div id="printTest" class="report__paper" v-show="customizeMould">
           <input type="text" style="font-size:26px;" v-model="mainTitle" class="center weight">
           <input type="text" style="font-size:20px;" v-model="subTitle" class="center weight">
           <div class="edit__hospital__wrap">
@@ -44,9 +49,12 @@
           </div>
           <div class="line"></div>
           <!-- 基本信息 第一栏-->
-          <vuedraggable :options="dragOptions" group="dragUserInfo">
+          <vuedraggable v-model="userInfoDragArr" group="dragUserInfo" :options="dragOptions"  @change="dragChangeUserInfo" >
             <transition-group tag="div" class="case__userinfo">
-              <div class="userinfo__item" key="name">
+              <div class="userinfo__item" v-for="item in userInfoDragArr" :key="item.value">
+                <span class="weight">{{ item.name }}</span><input type="text" class="userinfo__value">
+              </div>
+              <!-- <div class="userinfo__item" key="name">
                 <span class="weight">姓名：</span><input type="text" v-model="name" class="userinfo__value">
               </div>
               <div class="userinfo__item" key="sex">
@@ -78,18 +86,10 @@
               </div>
               <div class="userinfo__item" key="clinicalDiagnose">
                 <span class="weight">临床诊断:</span><input type="text" v-model="clinicalDiagnose" class="userinfo__value">
-              </div>
+              </div> -->
             </transition-group>
           </vuedraggable>
           <div class="line"></div>
-          <!-- test -->
-          <!-- <vuedraggable v-model="list1" group="people" :options="dragOptions">
-            <transition-group tag="div">
-              <div v-for="item in list1" :key="item" class="item">
-                <p>{{item}}</p>
-              </div>
-            </transition-group>
-          </vuedraggable> -->
           <vuedraggable :options="dragOptions" group="dragListOne">
             <transition-group tag="div">
               <!-- 添加项 -->
@@ -103,6 +103,7 @@
             </transition-group>
           </vuedraggable>
           <div class="addBtn" @click="addReportItem" v-if="showElement">+</div>
+          <el-button type="primary" class="save__mould__btn" @click="saveMouldBtn" v-if="showElement">保存模板</el-button>
         </div>
       </div>
     </div>
@@ -147,25 +148,45 @@ export default {
       lensResult: '',
       list1: [1],
       list2: [2,4,6,8,10],
-      customizeModule: true,
-      myModule: false,
-      itemList: [
-        { itemTitle: {generalTitle: '大体所见'},  itemResult: {generalResult: '1111111'} },
-        { itemTitle: {lensTitle: '镜下所见'}, itemResult: {lensResult: '2222222'} }
-      ]
+      customizeMould: true, // 自定义模板的显示与否
+      myMould: false, // 我的模板的显示与否
+      userInfoDragArr: [
+        { name: '姓名：', value: 'name' },
+        { name: '性别：', value: 'sex' },
+        { name: '年龄：', value: 'age' },
+        { name: '送检科别：', value: 'department' },
+        { name: '床号：', value: 'bedNo' },
+        { name: '住院号：', value: 'admissionNo' },
+        { name: '门诊号：', value: 'outpatientNo' },
+        { name: '送检医师：', value: 'doctorName' },
+        { name: '送检日期：', value: 'testDateStr' },
+        { name: '离体日期：', value: 'separationDateStr' },
+        { name: '临床诊断', value: 'clinicalDiagnose' }
+      ],
+      myMouldNum: 0
     }
   },
   components: {
     vuedraggable
   },
+  mounted () {
+    this.myMouldNum = localStorage.getItem('myMouldNum') * 1
+    console.log(this.myMouldNum)
+  },
+  watch: {
+    myMouldNum (val) {
+      this.myMouldNum = localStorage.getItem('myMouldNum') * 1
+      console.log(val,'------')
+    }
+  },
   methods: {
-    customizeModuleBtn () {
-      this.customizeModule = true
-      this.myModule = false
+    customizeMouldBtn () {
+      this.customizeMould = true
+      this.myMould = false
     },
-    myModuleBtn () {
-      this.customizeModule = false
-      this.myModule = true
+    myMouldBtn () {
+      this.customizeMould = false
+      this.myMould = true
     },
     changePaperSize () {
       this.paperBigger = !this.paperBigger
@@ -174,10 +195,8 @@ export default {
       this.addReportItemNum++
       this.reportItemArr.push(this.addReportItemNum)
     },
-    deleteReportItem (index) {
-      console.log(index, this.reportItemArr)
-      this.reportItemArr.splice(index, 1)
-      // this.addReportItemNum--
+    deleteMouldItem (index) {
+      console.log('删除')
     },
     printReportBtn () {
       this.showElement = false
@@ -187,7 +206,40 @@ export default {
         that.showElement = true
         that.paperBigger = !that.paperBigger
       },1000)
-    }
+    },
+    saveMouldBtn () {
+      console.log('保存模板')
+      this.myMouldNum++
+      localStorage.setItem('myMouldNum', this.myMouldNum)
+      this.$message({
+        message: "已保存至我的模板",
+        type: "success"
+      });
+    },
+    dragChangeUserInfo() {
+      console.log(this.userInfoDragArr, 'dragChangeUserInfo');
+    },
+  //   getComponentData () {
+  //     return {
+  //       on: {
+  //         change: this.dragChangeUserInfo,
+  //         input: this.inputChanged
+  //       },
+  //       props: {
+  //         value: this.activeNames
+  //       }
+  //     };
+  //   },
+  //   dragChangeUserInfo() {
+  //     console.log(this.userInfoDragArr, 'dragChangeUserInfo');
+  //   },
+  //   inputChanged(value) {
+  //     // this.activeNames = value;
+  //     console.log(value,'=======')
+  //   },
+  //   end (ev) {
+  //     console.log(ev)
+  //   }
   }
 }
 </script>
@@ -221,6 +273,7 @@ export default {
   height: 74vh;
   background: #d4e8eb;
   overflow: auto;
+  padding: 20px;
 }
 .report__preview__title {
   width: 100%;
@@ -312,15 +365,19 @@ textarea {
   line-height: 80px;
   border: 2px dashed #888;
   border-radius: 60px;
-  left: 42%;
   font-size: 100px;
   color: rgb(173, 173, 173);
   text-align: center;
-  margin-top: 20px;
+  margin:20px auto;
 }
 .addBtn:hover {
   cursor: pointer;
   transform: scale(1.1);
+}
+.save__mould__btn {
+  position: relative;
+  display: block;
+  margin: 0 auto;
 }
 .add__item__wrap, .item__wrap {
   position: relative;
