@@ -3,11 +3,11 @@
     <el-card class="paper__topbar">
       <el-button class="paper__bigger__btn" type="primary" @click="customizeMouldBtn" plain>自定义模板</el-button>
       <el-button class="paper__bigger__btn" type="success" @click="myMouldBtn" plain>我的模板</el-button>
-      <el-button v-print="'#printTest'" @click="printReportBtn" plain>打印报告</el-button>
+      <el-button v-print="'#printTest'" @click="printReportBtn" plain v-show="!customizeMould">打印模板</el-button>
     </el-card >
     <div class="report__mould__wrap">
       <!-- 左侧自定义区域 -->
-      <div class="report__mould__left">
+      <div class="report__mould__left" :class="customizeMould ? 'backgroundChange' : ''">
         <!-- 自定义模板 -->
         <el-alert title="温馨提示： 点击上方“自定义模板”按钮后，您可通过鼠标拖拽的方式，对左右两侧的内容进行更改。" type="warning" style="margin:14px 0px"></el-alert>
         <!--左边 第一栏 基本信息-->
@@ -29,22 +29,23 @@
         </vuedraggable>
         <!-- 我的模板 -->
         <div v-show="myMould">
-          <el-button type="primary" class="use__mould__btn" @click="useMouldBtn">使用模板</el-button>
+          <el-button type="primary" v-if="myMould && myAllMouldArr.length !== 0" class="use__mould__btn" @click="useMouldBtn">使用模板</el-button>
+          <el-button type="info" v-if="myMould && myAllMouldArr.length === 0" class="use__mould__btn" disabled>使用模板</el-button>
           <div class="myMould__section">
             <div v-for="(item, index) of myMouldNum" :key="index" class="myMould__item" @click="chooseMould(index)">
               <i class="el-icon-document myMould__icon"></i>
               <p class="myMould__info">我的第{{ index + 1 }}个模板</p>
-              <div class="myMould__item__cover"></div>
+              <div class="myMould__item__cover" :class="mouldChoosedIndex === index ? 'opacityShow' : ''"></div>
               <!-- <i class="el-icon-delete" @click="deleteMouldItem(index)"></i> -->
             </div>
           </div>
         </div>
       </div>
       <!-- 右侧预览区域 -->
-      <!-- 自定义预览 -->
       <div class="report__mould__right" :class="paperBigger ? 'biggerPaper' : ''">
         <div class="report__preview__title">模板预览区</div>
-        <div id="printTest" class="report__paper" v-show="customizeMould">
+        <!-- 自定义预览 -->
+        <div class="report__paper" v-show="customizeMould">
           <input type="text" style="font-size:26px;" v-model="mainTitle" class="center weight">
           <input type="text" style="font-size:20px;" v-model="subTitle" class="center weight">
           <div class="edit__hospital__wrap">
@@ -72,9 +73,30 @@
           <div class="addBtn" @click="addReportItem" v-if="showElement">+</div>
           <el-button type="primary" class="save__mould__btn" @click="saveMouldBtn" v-if="showElement">保存模板</el-button>
         </div>
+        <!-- 我的模板预览 -->
+        <div id="printTest"  class="report__paper" v-if="myMould && myAllMouldArr.length !== 0">
+          <input type="text" style="font-size:26px;" v-model="mainTitle" class="center weight bordernon" disabled>
+          <input type="text" style="font-size:20px;" v-model="subTitle" class="center weight bordernon" disabled>
+          <div class="edit__hospital__wrap">
+            <span class="weight">送检医院：</span><input type="text" v-model="hospital" class="edit__hospital bordernon" disabled>
+          </div>
+          <div class="line"></div>
+          <div class="case__userinfo">
+            <div class="userinfo__item" v-for="item in myAllMouldArr[mouldChoosedIndex]['userInfo']" :key="item.value">
+              <span class="weight">{{ item.name }}</span><input type="text" class="userinfo__value bordernon" disabled>
+            </div>
+          </div>
+          <div class="line"></div>
+          <div class="item__wrap" v-for="item in myAllMouldArr[mouldChoosedIndex]['resultItem']" :key="item.value">
+            <input type="text" class="item__name weight bordernon" v-model="item.name" disabled>
+            <textarea id="" cols="30" rows="2" class="bordernon" disabled></textarea>
+          </div>
+        </div>
+        <div v-if="myMould && myAllMouldArr.length === 0">
+          <div class="no__mould">暂未创建模板~</div>
+        </div>
       </div>
     </div>
-    
   </div>
 </template>
 
@@ -84,7 +106,7 @@ import vuedraggable from 'vuedraggable'
 export default {
   data () {
     return {
-      mouldChoosedIndex: '', // 选择了第几个模板
+      mouldChoosedIndex: 0, // 选择了第几个模板
       myMouldNum: 0,
       myAllMouldArr: [],
       myEachMouldArr: [],
@@ -120,7 +142,7 @@ export default {
         { name: '送检医师：', value: 'doctorName' },
         { name: '送检日期：', value: 'testDateStr' },
         { name: '离体日期：', value: 'separationDateStr' },
-        { name: '临床诊断', value: 'clinicalDiagnose' }
+        { name: '临床诊断：', value: 'clinicalDiagnose' }
       ],
       resultItemLeftArr: [
         { name: '镜下所见：', value: 'lensTitle' },
@@ -139,6 +161,7 @@ export default {
   watch: {
     myMouldNum (val) {
       this.myMouldNum = localStorage.getItem('myMouldNum') * 1
+      this.myAllMouldArr = JSON.parse(localStorage.getItem('myAllMouldArr'))
       console.log(val, '------')
     },
     myAllMouldArr (val) {
@@ -177,9 +200,9 @@ export default {
     saveMouldBtn () {
       this.myMouldNum++
       localStorage.setItem('myMouldNum', this.myMouldNum)
-      this.myEachMouldArr = []
-      this.myEachMouldArr.push(this.userInfoRightArr)
-      this.myEachMouldArr.push(this.resultItemRightArr)
+      this.myEachMouldArr = {}
+      this.myEachMouldArr.userInfo = this.userInfoRightArr
+      this.myEachMouldArr.resultItem = this.resultItemRightArr
       this.myAllMouldArr.push(this.myEachMouldArr)
       localStorage.setItem('myAllMouldArr', JSON.stringify(this.myAllMouldArr))
       this.$message({
@@ -193,11 +216,30 @@ export default {
       // console.log(this.resultItemLeftArr, 'resultItemLeftArr');
       // console.log(this.resultItemRightArr, 'resultItemRightArr');
     },
-    useMouldBtn () {
-      console.log('使用模板')
-    },
     chooseMould (index) {
       console.log(index)
+      this.mouldChoosedIndex = index
+      console.log(this.mouldChoosedIndex)
+    },
+    useMouldBtn () {
+      this.$confirm('此操作将更新所有报告的模板, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        console.log('使用模板111')
+        let getAllMould = JSON.parse(localStorage.getItem('myAllMouldArr'))
+        localStorage.setItem('myMould', JSON.stringify(getAllMould[this.mouldChoosedIndex]))
+        this.$message({
+          type: 'success',
+          message: '模板更新成功!'
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '模板更新失败'
+        });          
+      });
     }
   }
 }
@@ -230,9 +272,11 @@ export default {
 .report__mould__left {
   width: 30%;
   height: 74vh;
-  background: #d4e8eb;
   overflow: auto;
   padding: 20px;
+}
+.backgroundChange {
+  background: #d4e8eb;
 }
 .report__preview__title {
   width: 100%;
@@ -258,6 +302,10 @@ export default {
 }
 .center {
   text-align: center;
+}
+.bordernon {
+  border: none;
+  color: black;
 }
 .line {
   width: 90%;
@@ -371,6 +419,15 @@ textarea {
   margin: 0;
   transition: all 0.5s;
 }
+.no__mould {
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+  color: #888;
+  position: relative;
+  top: 200px;
+  letter-spacing: 3px;
+}
 .myMould__section {
   box-sizing: border-box;
   width: 100%;
@@ -404,6 +461,9 @@ textarea {
   left: 0;
   top: 0;
   cursor: pointer;
+}
+.opacityShow {
+  opacity: .1;
 }
 .myMould__item:hover {
   transform: scale(1.1);
