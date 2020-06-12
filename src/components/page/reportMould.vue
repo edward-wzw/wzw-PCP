@@ -9,31 +9,33 @@
       <!-- 左侧自定义区域 -->
       <div class="report__mould__left">
         <!-- 自定义模板 -->
-        <el-alert title="温馨提示： 点击“自定义模板”后，您可通过鼠标拖拽的方式，对左右两侧的内容进行更改。" type="warning" style="margin:14px 0px"></el-alert>
-        <vuedraggable :options="dragOptions" group="dragUserInfo" v-show="customizeMould">
-          <transition-group tag="div">
+        <el-alert title="温馨提示： 点击上方“自定义模板”按钮后，您可通过鼠标拖拽的方式，对左右两侧的内容进行更改。" type="warning" style="margin:14px 0px"></el-alert>
+        <!--左边 第一栏 基本信息-->
+        <vuedraggable v-model="userInfoLeftArr" group="dragUserInfo" :options="dragOptions"  @change="dragChangeUserInfo" v-show="customizeMould">
+          <transition-group tag="div" class="case__userinfo">
+            <div class="userinfo__item" v-for="item in userInfoLeftArr" :key="item.value">
+              <span class="weight">{{ item.name }}</span><input type="text" class="userinfo__value">
+            </div>
           </transition-group>
         </vuedraggable>
-        <vuedraggable :options="dragOptions" group="dragListOne" v-show="customizeMould">
+        <!--左边 第二栏 包括添加项目 -->
+        <vuedraggable v-model="resultItemLeftArr" group="dragResultItem" :options="dragOptions" @change="dragChangeUserInfo" v-show="customizeMould">
           <transition-group tag="div" class="drag__box">    
-            <!-- 大体所见 第二栏 -->
-            <div class="item__wrap" key="aa">
-              <input type="text" class="item__name weight" v-model="generalTitle">
-              <textarea id="" cols="30" rows="2" v-model="generalResult"></textarea>
-            </div>
-            <!-- 镜下所见 第三栏 -->
-            <div class="item__wrap" key="bb">
-              <input type="text" class="item__name weight" v-model="lensTitle">
-              <textarea id="" cols="30" rows="2" v-model="lensResult"></textarea>
+            <div class="item__wrap" v-for="item in resultItemLeftArr" :key="item.value">
+              <input type="text" class="item__name weight" v-model="item.name">
+              <textarea id="" cols="30" rows="2"></textarea>
             </div>
           </transition-group>
         </vuedraggable>
         <!-- 我的模板 -->
         <div v-show="myMould">
-          <div v-for="(item, index) of myMouldNum" :key="index">
-            <i class="el-icon-tickets"></i>
-            我的第{{ index + 1 }}个模板
-            <i class="el-icon-delete" @click="deleteMouldItem(index)"></i>
+          <el-button type="primary" class="use__mould__btn" @click="useMouldBtn">使用模板</el-button>
+          <div class="myMould__section">
+            <div v-for="(item, index) of myMouldNum" :key="index" class="myMould__item">
+              <i class="el-icon-tickets"></i>
+              我的第{{ index + 1 }}个模板
+              <i class="el-icon-delete" @click="deleteMouldItem(index)"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -48,57 +50,21 @@
             <span class="weight">送检医院：</span><input type="text" v-model="hospital" class="edit__hospital">
           </div>
           <div class="line"></div>
-          <!-- 基本信息 第一栏-->
-          <vuedraggable v-model="userInfoDragArr" group="dragUserInfo" :options="dragOptions"  @change="dragChangeUserInfo" >
+          <!--右边 第一栏 基本信息-->
+          <vuedraggable v-model="userInfoRightArr" group="dragUserInfo" :options="dragOptions"  @change="dragChangeUserInfo" >
             <transition-group tag="div" class="case__userinfo">
-              <div class="userinfo__item" v-for="item in userInfoDragArr" :key="item.value">
+              <div class="userinfo__item" v-for="item in userInfoRightArr" :key="item.value">
                 <span class="weight">{{ item.name }}</span><input type="text" class="userinfo__value">
               </div>
-              <!-- <div class="userinfo__item" key="name">
-                <span class="weight">姓名：</span><input type="text" v-model="name" class="userinfo__value">
-              </div>
-              <div class="userinfo__item" key="sex">
-                <span class="weight">性别：</span><input type="text" v-model="sex" class="userinfo__value">
-              </div>
-              <div class="userinfo__item" key="age">
-                <span class="weight">年龄：</span><input type="text" v-model="age" class="userinfo__value">
-              </div>
-              <div class="userinfo__item" key="department">
-                <span class="weight">送检科别：</span><input type="text" v-model="department" class="userinfo__value">
-              </div>
-              <div class="userinfo__item" key="bedNo">
-                <span class="weight">床号：</span><input type="text" v-model="bedNo" class="userinfo__value">
-              </div>
-              <div class="userinfo__item" key="admissionNo">
-                <span class="weight">住院号：</span><input type="text" v-model="admissionNo" class="userinfo__value">
-              </div>
-              <div class="userinfo__item" key="outpatientNo">
-                <span class="weight">门诊号：</span><input type="text" v-model="outpatientNo" class="userinfo__value">
-              </div>
-              <div class="userinfo__item" key="doctorName">
-                <span class="weight">送检医师：</span><input type="text" v-model="doctorName" class="userinfo__value">
-              </div>
-              <div class="userinfo__item" key="testDateStr">
-                <span class="weight">送检日期：</span><input type="text" v-model="testDateStr" class="userinfo__value">
-              </div>
-              <div class="userinfo__item" key="separationDateStr">
-                <span class="weight">离体日期：</span><input type="text" v-model="separationDateStr" class="userinfo__value">
-              </div>
-              <div class="userinfo__item" key="clinicalDiagnose">
-                <span class="weight">临床诊断:</span><input type="text" v-model="clinicalDiagnose" class="userinfo__value">
-              </div> -->
             </transition-group>
           </vuedraggable>
           <div class="line"></div>
-          <vuedraggable :options="dragOptions" group="dragListOne">
+          <!--右边 第二栏 包括添加项目 -->
+          <vuedraggable v-model="resultItemRightArr" :options="dragOptions" group="dragResultItem">
             <transition-group tag="div">
-              <!-- 添加项 -->
-              <div v-for="item in reportItemArr" :key="item">
-                <div class="add__item__wrap">
-                  <input type="text" class="add__item__name">
-                  <!-- <i class="el-icon-delete delete" v-if="showElement" @click="deleteReportItem(item)"></i> -->
-                  <textarea id="" cols="30" rows="2"></textarea>
-                </div>
+              <div class="item__wrap" v-for="item in resultItemRightArr" :key="item.value">
+                <input type="text" class="item__name weight" v-model="item.name">
+                <textarea id="" cols="30" rows="2"></textarea>
               </div>
             </transition-group>
           </vuedraggable>
@@ -117,6 +83,9 @@ import vuedraggable from 'vuedraggable'
 export default {
   data () {
     return {
+      myMouldNum: 0,
+      myAllMouldArr: [],
+      myEachMouldArr: [],
       dragOptions:{
         animation: 120,
         scroll: true,
@@ -129,28 +98,16 @@ export default {
       mainTitle: '',
       subTitle: '',
       hospital: '',
-      name: '',
-      sex: '',
-      age: '',
-      department: '',
-      bedNo: '',
-      admissionNo: '',
-      outpatientNo: '',
-      doctorName: '',
-      testDateStr: '',
-      separationDateStr: '',
-      clinicalDiagnose: '',
+      // generalResult: '',
+      // lensResult: '',
       addReportItemNum: 0,
       reportItemArr: [],
-      generalTitle: '大体所见',
-      generalResult: '',
-      lensTitle: '镜下所见',
-      lensResult: '',
       list1: [1],
       list2: [2,4,6,8,10],
       customizeMould: true, // 自定义模板的显示与否
       myMould: false, // 我的模板的显示与否
-      userInfoDragArr: [
+      userInfoLeftArr: [],
+      userInfoRightArr: [
         { name: '姓名：', value: 'name' },
         { name: '性别：', value: 'sex' },
         { name: '年龄：', value: 'age' },
@@ -163,7 +120,11 @@ export default {
         { name: '离体日期：', value: 'separationDateStr' },
         { name: '临床诊断', value: 'clinicalDiagnose' }
       ],
-      myMouldNum: 0
+      resultItemLeftArr: [
+        { name: '镜下所见：', value: 'lensTitle' },
+        { name: '大体所见：', value: 'generalTitle' },
+      ],
+      resultItemRightArr: []
     }
   },
   components: {
@@ -176,7 +137,10 @@ export default {
   watch: {
     myMouldNum (val) {
       this.myMouldNum = localStorage.getItem('myMouldNum') * 1
-      console.log(val,'------')
+      console.log(val, '------')
+    },
+    myAllMouldArr (val) {
+      console.log(val, 'myAllMouldArr')
     }
   },
   methods: {
@@ -193,7 +157,8 @@ export default {
     },
     addReportItem () {
       this.addReportItemNum++
-      this.reportItemArr.push(this.addReportItemNum)
+      let tempValue = this.addReportItemNum
+      this.resultItemRightArr.push({name: '', value: tempValue})
     },
     deleteMouldItem (index) {
       console.log('删除')
@@ -208,38 +173,26 @@ export default {
       },1000)
     },
     saveMouldBtn () {
-      console.log('保存模板')
       this.myMouldNum++
       localStorage.setItem('myMouldNum', this.myMouldNum)
+      this.myEachMouldArr.push(this.userInfoRightArr)
+      this.myEachMouldArr.push(this.resultItemRightArr)
+      this.myAllMouldArr.push(this.myEachMouldArr)
+      localStorage.setItem('myAllMouldArr', JSON.stringify(this.myAllMouldArr))
       this.$message({
         message: "已保存至我的模板",
         type: "success"
       });
+      console.log(this.resultItemLeftArr, 'resultItemLeftArr');
+      console.log(this.resultItemRightArr, 'resultItemRightArr');
     },
     dragChangeUserInfo() {
-      console.log(this.userInfoDragArr, 'dragChangeUserInfo');
+      // console.log(this.resultItemLeftArr, 'resultItemLeftArr');
+      // console.log(this.resultItemRightArr, 'resultItemRightArr');
     },
-  //   getComponentData () {
-  //     return {
-  //       on: {
-  //         change: this.dragChangeUserInfo,
-  //         input: this.inputChanged
-  //       },
-  //       props: {
-  //         value: this.activeNames
-  //       }
-  //     };
-  //   },
-  //   dragChangeUserInfo() {
-  //     console.log(this.userInfoDragArr, 'dragChangeUserInfo');
-  //   },
-  //   inputChanged(value) {
-  //     // this.activeNames = value;
-  //     console.log(value,'=======')
-  //   },
-  //   end (ev) {
-  //     console.log(ev)
-  //   }
+    useMouldBtn () {
+      console.log('使用模板')
+    }
   }
 }
 </script>
@@ -378,6 +331,9 @@ textarea {
   position: relative;
   display: block;
   margin: 0 auto;
+}
+.use__mould__btn {
+  margin-bottom: 30px;
 }
 .add__item__wrap, .item__wrap {
   position: relative;
