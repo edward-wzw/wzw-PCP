@@ -56,7 +56,7 @@ export default {
   margin-top: 16px;
 }
 .activeTab {
-  background-color: #0097a5;
+  background-color: #0097a5 !important;
   color: #fff;
 }
 </style>

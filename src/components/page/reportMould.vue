@@ -74,6 +74,7 @@
             </transition-group>
           </vuedraggable>
           <div class="line"></div>
+          <div class="pagePrint"></div>
           <!--右边 第二栏 包括添加项目 -->
           <vuedraggable v-model="resultItemRightArr" :options="dragOptions" group="dragResultItem">
             <transition-group tag="div">
@@ -164,6 +165,7 @@ export default {
       resultItemLeftArr: [
         { name: '镜下所见：', value: 'lensTitle' },
         { name: '大体所见：', value: 'generalTitle' },
+        { name: '病理诊断', value: 'caseResultTitle' },
       ],
       resultItemRightArr: []
     }
@@ -266,6 +268,9 @@ export default {
 </script>
 
 <style scoped>
+.pagePrint {
+  page-break-before: always;
+}
 .paper__topbar {
   width: 50%;
   height: 80px;
