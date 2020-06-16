@@ -38,13 +38,13 @@
         <!-- 我的模板 -->
         <div v-show="myMould">
           <el-button type="primary" v-if="myMould && myAllMouldArr.length !== 0" class="use__mould__btn" @click="useMouldBtn">使用模板</el-button>
+          <el-button type="danger" v-if="myMould && myAllMouldArr.length !== 0" @click="deleteMouldBtn(mouldChoosedIndex, mouldDeleteIndex)">删除模板</el-button>
           <el-button type="info" v-if="myMould && myAllMouldArr.length === 0" class="use__mould__btn" disabled>使用模板</el-button>
           <div class="myMould__section">
-            <div v-for="(item, index) of myMouldNum" :key="index" class="myMould__item" @click="chooseMould(index)">
+            <div v-for="(item, index) of myAllMouldArr" :key="index" class="myMould__item" @click="chooseMould(item.mouldIndex, index)">
               <i class="el-icon-document myMould__icon"></i>
-              <p class="myMould__info">我的第{{ index + 1 }}个模板</p>
-              <div class="myMould__item__cover" :class="mouldChoosedIndex === index ? 'opacityShow' : ''"></div>
-              <!-- <i class="el-icon-delete" @click="deleteMouldItem(index)"></i> -->
+              <p class="myMould__info">我的第{{ item.mouldIndex }}个模板</p>
+              <div class="myMould__item__cover" :class="mouldChoosedIndex == item.mouldIndex ? 'opacityShow' : ''"></div>
             </div>
           </div>
         </div>
@@ -55,7 +55,7 @@
         <!-- 自定义预览 -->
         <div class="report__paper" v-show="customizeMould">
           <input type="text" style="font-size:26px;" v-model="mainTitle" class="center weight">
-          <input type="text" style="font-size:20px;" v-model="subTitle" class="center weight">
+          <input type="text" style="font-size:20px;" v-model="subTitle"  class="center weight">
           <!-- 右边 headerInfo -->
           <vuedraggable v-model="headerInfoRightArr" group="dragHeaderInfo" :options="dragOptions">
             <transition-group tag="div">
@@ -89,19 +89,19 @@
         </div>
         <!-- 我的模板预览 -->
         <div id="printTest"  class="report__paper" v-if="myMould && myAllMouldArr.length !== 0">
-          <input type="text" style="font-size:26px;" v-model="myAllMouldArr[mouldChoosedIndex]['mainTitle']" class="center weight bordernon" disabled>
-          <input type="text" style="font-size:20px;" v-model="myAllMouldArr[mouldChoosedIndex]['subTitle']" class="center weight bordernon" disabled>
-          <div class="edit__hospital__wrap" v-for="item in myAllMouldArr[mouldChoosedIndex]['headerInfo']" :key="item.value">
+          <input type="text" style="font-size:26px;" v-model="myAllMouldArr[mouldDeleteIndex]['mainTitle']" class="center weight bordernon" disabled>
+          <input type="text" style="font-size:20px;" v-model="myAllMouldArr[mouldDeleteIndex]['subTitle']" class="center weight bordernon" disabled>
+          <div class="edit__hospital__wrap" v-for="item in myAllMouldArr[mouldDeleteIndex]['headerInfo']" :key="item.value">
             <span class="weight">{{ item.name }}</span><input type="text" v-model="hospital" class="edit__hospital bordernon" disabled>
           </div>
           <div class="line"></div>
           <div class="case__userinfo">
-            <div class="userinfo__item" v-for="item in myAllMouldArr[mouldChoosedIndex]['userInfo']" :key="item.value">
+            <div class="userinfo__item" v-for="item in myAllMouldArr[mouldDeleteIndex]['userInfo']" :key="item.value">
               <span class="weight">{{ item.name }}</span><input type="text" class="userinfo__value bordernon" disabled>
             </div>
           </div>
           <div class="line"></div>
-          <div class="item__wrap" v-for="item in myAllMouldArr[mouldChoosedIndex]['resultItem']" :key="item.value">
+          <div class="item__wrap" v-for="item in myAllMouldArr[mouldDeleteIndex]['resultItem']" :key="item.value">
             <input type="text" class="item__name weight bordernon" v-model="item.name" disabled>
             <textarea id="" cols="30" rows="2" class="bordernon" disabled></textarea>
           </div>
@@ -120,7 +120,8 @@ import vuedraggable from 'vuedraggable'
 export default {
   data () {
     return {
-      mouldChoosedIndex: 0, // 选择了第几个模板
+      mouldChoosedIndex: 0, // 从具体的某个对象中拿
+      mouldDeleteIndex: 0, // 从数组的索引中拿
       myMouldNum: 0,
       myAllMouldArr: [],
       myEachMouldArr: [],
@@ -175,19 +176,43 @@ export default {
   },
   mounted () {
     this.myMouldNum = localStorage.getItem('myMouldNum') * 1
-    console.log(this.myMouldNum)
+    console.log(this.mouldChoosedIndex, 'mouldChoosedIndex')
   },
   watch: {
-    myMouldNum (val) {
-      this.myMouldNum = localStorage.getItem('myMouldNum') * 1
-      this.myAllMouldArr = JSON.parse(localStorage.getItem('myAllMouldArr'))
-      console.log(val, '------')
+    myMouldNum (newVal, oldVal) {
+      // if (newVal > oldVal) { // 保存而不是删除
+        this.myMouldNum = localStorage.getItem('myMouldNum') * 1
+        this.myAllMouldArr = JSON.parse(localStorage.getItem('myAllMouldArr'))
+      // }
     },
-    myAllMouldArr (val) {
-      console.log(val, 'myAllMouldArr')
+    mouldChoosedIndex (val) {
+      console.log(val,'mouldChoosedIndex')
     }
   },
   methods: {
+    deleteMouldBtn (mouldChoosedIndex, mouldDeleteIndex) {
+      this.$confirm('模板' + mouldChoosedIndex + '将被删除, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.myAllMouldArr.splice(mouldDeleteIndex, 1)
+        // this.myMouldNum--
+        console.log(this.myMouldNum,'*************')
+        console.log(this.myAllMouldArr)
+        localStorage.setItem('myAllMouldArr', JSON.stringify(this.myAllMouldArr))
+        localStorage.setItem('myMouldNum', this.myMouldNum)
+        this.$message({
+          type: 'success',
+          message: '模板' + mouldChoosedIndex + '删除成功!'
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '模板' + mouldChoosedIndex + '未删除'
+        });          
+      });
+    },
     customizeMouldBtn () {
       this.customizeMould = true
       this.myMould = false
@@ -204,9 +229,6 @@ export default {
       let tempValue = this.addReportItemNum
       this.resultItemRightArr.push({name: '', value: tempValue})
     },
-    deleteMouldItem (index) {
-      console.log('删除')
-    },
     printReportBtn () {
       this.showElement = false
       this.paperBigger = !this.paperBigger
@@ -220,6 +242,7 @@ export default {
       this.myMouldNum++
       localStorage.setItem('myMouldNum', this.myMouldNum)
       this.myEachMouldArr = {}
+      this.myEachMouldArr.mouldIndex = this.myMouldNum
       this.myEachMouldArr.mainTitle = this.mainTitle
       this.myEachMouldArr.subTitle = this.subTitle
       this.myEachMouldArr.headerInfo = this.headerInfoRightArr
@@ -238,10 +261,9 @@ export default {
       // console.log(this.resultItemLeftArr, 'resultItemLeftArr');
       // console.log(this.resultItemRightArr, 'resultItemRightArr');
     },
-    chooseMould (index) {
-      console.log(index)
-      this.mouldChoosedIndex = index
-      console.log(this.mouldChoosedIndex)
+    chooseMould (mouldChoosedIndex, mouldDeleteIndex) {
+      this.mouldChoosedIndex = mouldChoosedIndex
+      this.mouldDeleteIndex = mouldDeleteIndex
     },
     useMouldBtn () {
       this.$confirm('此操作将更新所有报告的模板, 是否继续?', '提示', {
@@ -249,7 +271,6 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        console.log('使用模板111')
         let getAllMould = JSON.parse(localStorage.getItem('myAllMouldArr'))
         localStorage.setItem('myMould', JSON.stringify(getAllMould[this.mouldChoosedIndex]))
         this.$message({
