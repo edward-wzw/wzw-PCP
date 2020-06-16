@@ -272,7 +272,8 @@ export default {
         type: 'warning'
       }).then(() => {
         let getAllMould = JSON.parse(localStorage.getItem('myAllMouldArr'))
-        localStorage.setItem('myMould', JSON.stringify(getAllMould[this.mouldChoosedIndex]))
+        console.log(getAllMould,'getAllMould')
+        localStorage.setItem('myMould', JSON.stringify(getAllMould[this.mouldDeleteIndex]))
         this.$message({
           type: 'success',
           message: '模板更新成功!'
