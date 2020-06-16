@@ -38,7 +38,7 @@
         <!-- 我的模板 -->
         <div v-show="myMould">
           <el-button type="primary" v-if="myMould && myAllMouldArr.length !== 0" class="use__mould__btn" @click="useMouldBtn">使用模板</el-button>
-          <el-button type="danger" v-if="myMould && myAllMouldArr.length !== 0" @click="deleteMouldBtn(mouldChoosedIndex, mouldDeleteIndex)">删除模板</el-button>
+          <el-button type="danger" v-if="myMould && myAllMouldArr.length !== 0" @click="deleteMouldBtn(mouldChoosedIndex, mouldArrIndex)">删除模板</el-button>
           <el-button type="info" v-if="myMould && myAllMouldArr.length === 0" class="use__mould__btn" disabled>使用模板</el-button>
           <div class="myMould__section">
             <div v-for="(item, index) of myAllMouldArr" :key="index" class="myMould__item" @click="chooseMould(item.mouldIndex, index)">
@@ -89,19 +89,19 @@
         </div>
         <!-- 我的模板预览 -->
         <div id="printTest"  class="report__paper" v-if="myMould && myAllMouldArr.length !== 0">
-          <input type="text" style="font-size:26px;" v-model="myAllMouldArr[mouldDeleteIndex]['mainTitle']" class="center weight bordernon" disabled>
-          <input type="text" style="font-size:20px;" v-model="myAllMouldArr[mouldDeleteIndex]['subTitle']" class="center weight bordernon" disabled>
-          <div class="edit__hospital__wrap" v-for="item in myAllMouldArr[mouldDeleteIndex]['headerInfo']" :key="item.value">
+          <input type="text" style="font-size:26px;" v-model="myAllMouldArr[mouldArrIndex]['mainTitle']" class="center weight bordernon" disabled>
+          <input type="text" style="font-size:20px;" v-model="myAllMouldArr[mouldArrIndex]['subTitle']" class="center weight bordernon" disabled>
+          <div class="edit__hospital__wrap" v-for="item in myAllMouldArr[mouldArrIndex]['headerInfo']" :key="item.value">
             <span class="weight">{{ item.name }}</span><input type="text" v-model="hospital" class="edit__hospital bordernon" disabled>
           </div>
           <div class="line"></div>
           <div class="case__userinfo">
-            <div class="userinfo__item" v-for="item in myAllMouldArr[mouldDeleteIndex]['userInfo']" :key="item.value">
+            <div class="userinfo__item" v-for="item in myAllMouldArr[mouldArrIndex]['userInfo']" :key="item.value">
               <span class="weight">{{ item.name }}</span><input type="text" class="userinfo__value bordernon" disabled>
             </div>
           </div>
           <div class="line"></div>
-          <div class="item__wrap" v-for="item in myAllMouldArr[mouldDeleteIndex]['resultItem']" :key="item.value">
+          <div class="item__wrap" v-for="item in myAllMouldArr[mouldArrIndex]['resultItem']" :key="item.value">
             <input type="text" class="item__name weight bordernon" v-model="item.name" disabled>
             <textarea id="" cols="30" rows="2" class="bordernon" disabled></textarea>
           </div>
@@ -121,7 +121,7 @@ export default {
   data () {
     return {
       mouldChoosedIndex: 0, // 从具体的某个对象中拿
-      mouldDeleteIndex: 0, // 从数组的索引中拿
+      mouldArrIndex: 0, // 从数组的索引中拿
       myMouldNum: 0,
       myAllMouldArr: [],
       myEachMouldArr: [],
@@ -190,13 +190,13 @@ export default {
     }
   },
   methods: {
-    deleteMouldBtn (mouldChoosedIndex, mouldDeleteIndex) {
+    deleteMouldBtn (mouldChoosedIndex, mouldArrIndex) {
       this.$confirm('模板' + mouldChoosedIndex + '将被删除, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.myAllMouldArr.splice(mouldDeleteIndex, 1)
+        this.myAllMouldArr.splice(mouldArrIndex, 1)
         // this.myMouldNum--
         console.log(this.myMouldNum,'*************')
         console.log(this.myAllMouldArr)
@@ -261,9 +261,9 @@ export default {
       // console.log(this.resultItemLeftArr, 'resultItemLeftArr');
       // console.log(this.resultItemRightArr, 'resultItemRightArr');
     },
-    chooseMould (mouldChoosedIndex, mouldDeleteIndex) {
+    chooseMould (mouldChoosedIndex, mouldArrIndex) {
       this.mouldChoosedIndex = mouldChoosedIndex
-      this.mouldDeleteIndex = mouldDeleteIndex
+      this.mouldArrIndex = mouldArrIndex
     },
     useMouldBtn () {
       this.$confirm('此操作将更新所有报告的模板, 是否继续?', '提示', {
@@ -273,7 +273,7 @@ export default {
       }).then(() => {
         let getAllMould = JSON.parse(localStorage.getItem('myAllMouldArr'))
         console.log(getAllMould,'getAllMould')
-        localStorage.setItem('myMould', JSON.stringify(getAllMould[this.mouldDeleteIndex]))
+        localStorage.setItem('myMould', JSON.stringify(getAllMould[this.mouldArrIndex]))
         this.$message({
           type: 'success',
           message: '模板更新成功!'
